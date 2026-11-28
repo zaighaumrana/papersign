@@ -4,7 +4,7 @@ import { CheckCircle2, Download, FileSignature, FileText, LockKeyhole, Minus, Pe
 import * as pdfjsLib from 'pdfjs-dist'
 import type { PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist'
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
-import { PDFDocument } from 'pdf-lib'
+import { degrees, PDFDocument } from 'pdf-lib'
 import SignaturePad from 'signature_pad'
 import { clampPlacement, getSignatureHeightRatio, toPdfImageRect } from './lib/pdf-placement'
 import './App.css'
@@ -211,7 +211,10 @@ function App() {
       const outputPages = output.getPages()
       for (const item of placements) {
         const page = outputPages[item.pageIndex]
-        if (page) {\n          const viewport = pages[item.pageIndex].getViewport({ scale: 1 })\n          page.drawImage(image, toPdfImageRect(item, viewport, imageAspectRatio))\n        }
+        if (page) {
+          const viewport = pages[item.pageIndex].getViewport({ scale: 1 })
+          page.drawImage(image, { ...toPdfImageRect(item, viewport, imageAspectRatio), rotate: degrees(-pages[item.pageIndex].rotate) })
+        }
       }
       const bytes = await output.save()
       const copy = new Uint8Array(bytes.length); copy.set(bytes)
