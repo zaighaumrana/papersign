@@ -211,7 +211,7 @@ function App() {
       const outputPages = output.getPages()
       for (const item of placements) {
         const page = outputPages[item.pageIndex]
-        if (page) page.drawImage(image, toPdfImageRect(item, page.getWidth(), page.getHeight(), imageAspectRatio))
+        if (page) {\n          const viewport = pages[item.pageIndex].getViewport({ scale: 1 })\n          page.drawImage(image, toPdfImageRect(item, viewport, imageAspectRatio))\n        }
       }
       const bytes = await output.save()
       const copy = new Uint8Array(bytes.length); copy.set(bytes)

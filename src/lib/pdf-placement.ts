@@ -1,4 +1,5 @@
 export type SignaturePlacement = { x: number; y: number; width: number }
+export type PdfViewportGeometry = { width: number; height: number; transform: number[] }
 
 export function getSignatureHeightRatio(width: number, pageAspectRatio: number, imageAspectRatio: number) {
   if (pageAspectRatio <= 0 || imageAspectRatio <= 0) return 0
@@ -16,8 +17,34 @@ export function clampPlacement<T extends SignaturePlacement>(placement: T, pageA
   }
 }
 
-export function toPdfImageRect(placement: SignaturePlacement, pageWidth: number, pageHeight: number, imageAspectRatio: number) {
-  const width = placement.width * pageWidth
+/** Converts normalized top-left preview coordinates back into PDF user space.
+ * Using the PDF.js viewport inverse transform also handles rotated PDF pages.
+ */
+export function toPdfImageRect(placement: SignaturePlacement, viewport: PdfViewportGeometry, imageAspectRatio: number) {
+  const width = placement.width * viewport.width
   const height = width / imageAspectRatio
-  return { x: placement.x * pageWidth, y: pageHeight - (placement.y * pageHeight) - height, width, height }
+  const left = placement.x * viewport.width
+  const top = placement.y * viewport.height
+  const [a, b, c, d, e, f] = viewport.transform
+  const determinant = a * d - b * c
+  if (!determinant) throw new Error('The PDF page has an invalid coordinate transform.')
+  const inverse = [
+    d / determinant, -b / determinant, -c / determinant, a / determinant,
+    (c * f - d * e) / determinant, (b * e - a * f) / determinant,
+  ]
+  const mapPoint = (x: number, y: number) => ({
+    x: inverse[0] * x + inverse[2] * y + inverse[4],
+    y: inverse[1] * x + inverse[3] * y + inverse[5],
+  })
+  const corners = [
+    mapPoint(left, top), mapPoint(left + width, top),
+    mapPoint(left, top + height), mapPoint(left + width, top + height),
+  ]
+  const xs = corners.map((point) => point.x)
+  const ys = corners.map((point) => point.y)
+  const minX = Math.min(...xs)
+  const minY = Math.min(...ys)
+  const maxX = Math.max(...xs)
+  const maxY = Math.max(...ys)
+  return { x: minX, y: minY, width: maxX - minX, height: maxY - minY }
 }
