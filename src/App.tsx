@@ -40,8 +40,8 @@ function App() {
       minWidth: 0.8,
       maxWidth: 2.4,
       penColor: '#211b1c',
-      onEnd: () => setHasSignature(true),
     })
+    signaturePad.addEventListener('endStroke', () => setHasSignature(true))
     signaturePadRef.current = signaturePad
 
     const resizeCanvas = () => {
@@ -144,7 +144,7 @@ function App() {
       document.body.appendChild(link)
       link.click()
       link.remove()
-      URL.revokeObjectURL(url)
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000)
 
       setMessage('Your signed PDF has been downloaded.')
     } catch (cause) {
