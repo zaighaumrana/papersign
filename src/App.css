@@ -47,7 +47,7 @@
 .add-signature-button{display:inline-flex;align-items:center;gap:5px;border:1px solid #e5d6d5;border-radius:7px;padding:6px 9px;color:var(--wine);background:#fff;font-size:10px;font-weight:700;cursor:pointer}
 .add-signature-button:disabled{opacity:.4;cursor:not-allowed}
 .pdf-page-stage{display:flex;justify-content:center;overflow:auto}
-.page-canvas-wrap{position:relative;width:min(100%,860px);overflow:hidden;background:white;box-shadow:0 3px 15px rgb(30 20 18 / 12%)}
+.page-canvas-wrap{position:relative;flex:0 0 auto;overflow:hidden;background:white;box-shadow:0 3px 15px rgb(30 20 18 / 12%)}
 .page-canvas-wrap canvas{display:block;width:100%;height:auto}
 .signature-placement{position:absolute;z-index:2;min-width:32px;border:1px dashed var(--wine);background:rgb(255 255 255 / 10%);cursor:move;touch-action:none;user-select:none}
 .signature-placement img{display:block;width:100%;height:auto;pointer-events:none}

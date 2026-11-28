@@ -91,7 +91,7 @@ function PdfPage({ page, pageNumber, zoom, placements, signatureData, imageAspec
         </button>
       </div>
       <div className="pdf-page-stage">
-        <div className="page-canvas-wrap" style={{ aspectRatio }}>
+        <div className="page-canvas-wrap" style={{ aspectRatio, width: (zoom * 100) + '%', maxWidth: zoom <= 1 ? '860px' : 'none' }}>
           <canvas ref={canvasRef} aria-label={'PDF page ' + pageNumber + ' preview'} />
           {placements.map((item) => <SignaturePlacement key={item.id} placement={item} pageAspectRatio={base.width / base.height}
             imageAspectRatio={imageAspectRatio} signatureData={signatureData} onChange={onChangePlacement} onRemove={onRemovePlacement} />)}
