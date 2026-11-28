@@ -3,23 +3,38 @@
 @tailwind utilities;
 
 :root {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  color-scheme: light dark;
-  color: #0f172a;
-  background-color: #f8fafc;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #211b1c;
+  background: #f8f6f3;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  --wine: #8b2942;
+  --gold: #c9a76c;
+  --ink: #211b1c;
+  --muted: #827875;
+  --line: #e9e2dc;
+  --paper: #fffefd;
 }
+
+* { box-sizing: border-box; }
+
+html { min-width: 320px; min-height: 100%; }
 
 body {
-  margin: 0;
+  min-width: 320px;
   min-height: 100vh;
+  margin: 0;
 }
 
-#root {
-  min-height: 100vh;
+button, input { font: inherit; }
+
+button:focus-visible, a:focus-visible {
+  outline: 3px solid rgb(139 41 66 / 28%);
+  outline-offset: 3px;
 }
+
+#root { min-height: 100vh; }
