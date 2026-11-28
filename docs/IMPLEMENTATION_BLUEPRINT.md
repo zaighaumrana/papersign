@@ -1,98 +1,73 @@
 # PaperSign implementation blueprint
 
 ## Product principles
-
 1. **Local first:** document bytes remain on the user's device by default.
-2. **No account gate for basic signing:** opening a PDF, drawing a signature, and exporting a signed copy must remain available without registration.
-3. **Explicit network boundaries:** any future cloud feature must clearly explain what data leaves the device and require an affirmative user action.
-4. **Honest signature language:** an image of a handwritten signature is a visual mark, not a cryptographic digital signature.
-5. **Progressive freemium:** paid features must not compromise the basic local signing workflow.
+2. **No account gate for basic signing:** opening, previewing, signing, and exporting remain available without registration.
+3. **Explicit network boundaries:** future cloud features must explain what data leaves the device and require affirmative action.
+4. **Honest signature language:** a handwritten signature image is a visual mark, not a cryptographic digital signature.
+5. **Progressive freemium:** paid features must not compromise basic local signing.
 
-## Current milestone
+## Current milestone: v0.2 Document Workspace
+- Select and validate a PDF locally.
+- Render every page using PDF.js.
+- Jump to pages and adjust preview zoom.
+- Draw a signature once and add placements to any page.
+- Drag a placement and resize it with its corner handle.
+- Remove an individual placement.
+- Export all placements into the corresponding original PDF pages using pdf-lib.
+- Keep the source PDF unchanged and download a separate signed copy.
+- Keep document processing in the browser.
 
-The current implementation is a deliberately small vertical slice:
+## Known limitations
+- All page proxies are loaded for the document; very large PDFs may consume substantial memory.
+- No thumbnails, virtualized rendering, or lazy page loading yet.
+- No undo/redo history or keyboard placement controls.
+- No signature image import, typed signatures, background cleanup, or saved local profiles.
+- No authentication, billing, email delivery, server-side document storage, or certificate signing.
 
-- PDF selection and basic validation with pdf-lib
-- Page count extraction
-- Signature drawing with signature_pad
-- Signature image embedding on page one, bottom-right
-- Local PDF export
+## Next milestones
+### Signature studio
+- Draw, type, or import a signature.
+- Add transparent-background cleanup for imported images.
+- Offer undo/clear controls.
+- Keep signature assets local unless the user explicitly saves a local profile.
 
-Known limitations:
+### Local workspace and history
+- Use IndexedDB through Dexie for opt-in local profiles and recent-document metadata.
+- Do not persist original PDF bytes by default without clear consent.
+- Provide controls for removing local data.
 
-- No PDF page preview yet
-- Signature placement is fixed, not draggable
-- Only the first page receives a signature
-- No signature image import or cleanup
-- No multi-signature workflow
-- No IndexedDB persistence or saved signature profiles
-- No authentication, billing, email delivery, or server-side document storage
-- No cryptographic certificate signing
+### Freemium accounts
+- Keep basic signing account-free.
+- Add optional authentication and entitlement checks for paid features.
+- Store account and subscription metadata separately from document contents.
+- Never upload a PDF merely to check authentication or feature entitlement.
 
-## Planned milestones
-
-### 1. Document workspace
-
-- Render PDFs with PDF.js
-- Add page navigation, zoom, and responsive page display
-- Let users place, move, resize, and remove signature objects
-- Support multiple signature placements and page selection
-- Preserve the source PDF until the user explicitly exports
-
-### 2. Signature studio
-
-- Draw, type, or import a signature
-- Provide transparent-background cleanup for imported signature images
-- Offer preview and undo/clear controls
-- Keep signature assets local unless the user chooses to save a local profile
-
-### 3. Local workspace and history
-
-- Use IndexedDB through Dexie for opt-in local profiles and recent-document metadata
-- Do not persist original PDF bytes by default without clear user consent
-- Provide clear controls for removing local data
-
-### 4. Freemium accounts
-
-- Keep basic signing account-free
-- Add optional authentication and entitlement checks for paid features
-- Store account and subscription metadata separately from document contents
-- Never upload a PDF merely to check whether a user is signed in or entitled to a feature
-
-### 5. Optional delivery services
-
-- Add explicit user-triggered email delivery through a server-side service
-- Explain that sending a document requires transmitting it to the selected delivery provider
-- Keep a clear confirmation step and delivery record
-- Do not silently email or store documents
+### Optional delivery services
+- Add explicit user-triggered email delivery.
+- Explain that sending a document transmits it to the selected provider.
+- Keep a clear confirmation step and delivery record.
 
 ## Architecture boundaries
-
-- **UI:** React components and feature-focused modules
-- **PDF operations:** isolated PDF service using pdf-lib
-- **PDF rendering:** isolated PDF.js adapter and worker configuration
-- **Signature capture:** signature_pad adapter
-- **Local persistence:** Dexie/IndexedDB, introduced only for explicit local-save workflows
-- **Validation:** Zod at external input boundaries where useful
-- **Backend:** optional account, entitlement, billing, and delivery endpoints only; not a default document-processing dependency
+- **UI:** React components and feature-focused modules.
+- **PDF rendering:** PDF.js, isolated from editing/export logic.
+- **PDF operations:** pdf-lib for writing signature images into the original document.
+- **Signature capture:** signature_pad.
+- **Local persistence:** Dexie/IndexedDB only for explicit local-save workflows.
+- **Validation:** validate untrusted files and handle malformed, encrypted, or oversized PDFs.
+- **Backend:** optional account, entitlement, billing, and delivery endpoints only.
 
 ## Security and privacy requirements
-
 - Treat uploaded PDFs and image files as untrusted input.
-- Validate file type and handle malformed, encrypted, or oversized files gracefully.
 - Avoid logging document contents, signatures, or personal data.
-- Revoke object URLs and release temporary resources after export.
-- Use HTTPS for any future remote account or delivery functionality.
+- Release PDF.js rendering resources and object URLs after use.
 - Keep secrets out of browser bundles and repository files.
-- Document exactly when a future feature transmits document data.
+- Explain exactly when future features transmit document data.
 
 ## Engineering checks
-
-Before merging a feature:
-
-- TypeScript typecheck passes
-- Oxlint passes
-- Production Vite build passes
-- Unit tests cover PDF and signature service behavior
-- Browser tests cover upload, signing, export, and failure states
-- Privacy copy matches actual network behavior
+- TypeScript typecheck passes.
+- Oxlint passes.
+- Production Vite build passes.
+- Unit tests cover placement coordinate conversion and PDF service behavior.
+- Browser tests cover upload, page rendering, placement, export, and failure states.
+- Privacy copy matches actual network behavior.
